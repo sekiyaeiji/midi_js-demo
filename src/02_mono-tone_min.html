@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>02 mono tone min</title>
+  <style>
+    html {
+      height: 100%;
+    }
+    body {
+      position: relative;
+      height: 100%;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: normal;
+      color: #333;
+    }
+    .play {
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 5px;
+      background: #999;
+      color: #fff;
+      cursor: pointer;
+    }
+    .play:active {
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 5px;
+      background: #666;
+      color: #eee;
+      cursor: pointer;
+    }
+    .loader {
+      position: fixed;
+      margin: 0;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      height: 100%;
+      background: rgba(255, 255, 255, .8);
+      z-index: 10;
+    }
+    .loader > span {
+      position: absolute;
+      display: block;
+      left: 50%;
+      right: 50%;
+      top: 50%;
+      bottom: 50%;
+      width: 32px;
+      height: 32px;
+      background: url(img/loader.png);
+      background-repeat: no-repeat;
+      background-size: 32px 32px;
+      animation: animeZ 2s linear infinite;
+    }
+    @keyframes animeZ {
+      0% {
+        transform: rotateZ(-0deg);
+      }
+      100% {
+        transform: rotateZ(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>単音 soundfont抜粋</h1>
+
+  <p id="js-play" class="play">play tone (A4) &gt;&gt;</p>
+
+  <p id="js-loader" class="loader"><span></span></p>
+  
+  <script src="js/jquery-2.2.4.min.js"></script>
+  <script src="js/Base64.js"></script>
+  <script src="js/Base64binary.js"></script>
+  <script src="js/WebAudioAPI.js"></script>
+  <script src="js/audioDetect.js"></script>
+  <script src="js/gm.js"></script>
+  <script src="js/loader.js"></script>
+  <script src="js/plugin.audiotag.js"></script>
+  <script src="js/plugin.webaudio.js"></script>
+  <script src="js/plugin.webmidi.js"></script>
+  <script src="js/dom_request_xhr.js"></script>
+  <script src="js/dom_request_script.js"></script>
+  <script>
+
+    $(function () {
+      
+      // load piano
+      if ($('#js-play').length) {
+        var conf = {
+          target: 'body'
+        };
+        midiPiano.init(conf);
+      }
+      
+    });
+
+    var midiPiano = {
+      init: function (conf) {
+        MIDI.loadPlugin({
+          soundfontUrl: './soundfont/',
+          instrument: 'acoustic_grand_piano_mono',
+          onsuccess: function () {
+            
+            // mousedown event
+            midiPiano.event(conf);
+
+            // hide loader
+            midiPiano.loaderHide();
+          }
+        });
+      },
+      event: function (conf) {
+        var $target = $(conf.target);
+        $target.on('mousedown', '#js-play', function (e) {e.preventDefault();midiPiano.shot(69);});
+      },
+      loaderHide: function () {
+        $('#js-loader').hide();
+      },
+      shot: function (num) {
+        var delay = 0;
+        var velocity = 127;
+        var duration = 10;
+        var note = num;
+        // play the note
+        MIDI.programChange(0, 0);
+        MIDI.setVolume(0, 127);
+        MIDI.noteOn(0, note, velocity, delay);
+        MIDI.noteOff(0, note, delay + duration);
+      }
+    };
+  </script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+

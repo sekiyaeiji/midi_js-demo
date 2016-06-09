@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>08 rhythm track js - tension</title>
+  <style>
+    h1 {
+      font-size: 20px;
+      font-weight: normal;
+      color: #333;
+    }
+    .music {
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 5px;
+      background: #999;
+      color: #fff;
+      cursor: pointer;
+    }
+    .music:active {
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 5px;
+      background: #666;
+      color: #eee;
+      cursor: pointer;
+    }
+    .loader {
+      position: fixed;
+      margin: 0;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      height: 100%;
+      background: rgba(255, 255, 255, .8);
+      z-index: 10;
+    }
+    .loader > span {
+      position: absolute;
+      display: block;
+      left: 50%;
+      right: 50%;
+      top: 50%;
+      bottom: 50%;
+      width: 32px;
+      height: 32px;
+      background: url(img/loader.png);
+      background-repeat: no-repeat;
+      background-size: 32px 32px;
+      animation: animeZ 2s linear infinite;
+    }
+    @keyframes animeZ {
+      0% {
+        transform: rotateZ(-0deg);
+      }
+      100% {
+        transform: rotateZ(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>リズムパターン ー テンション</h1>
+
+  <p>tempo ： 
+    <select id="js-tempo">
+      <option value="1.5">80</option>
+      <option value="1.2">100</option>
+      <option value="1" selected>120</option>
+      <option value="0.857">140</option>
+      <option value="0.75">160</option>
+    </select>
+  </p>
+  
+  <p>humanize ： 
+    <select id="js-humanize">
+      <option value="0" selected>0</option>
+      <option value="0.005">low</option>
+      <option value="0.01">mid</option>
+      <option value="0.1">high</option>
+    </select>
+  </p>
+
+  <p>velocity humanize ： 
+    <select id="js-humanizeVelocity">
+      <option value="0" selected>0</option>
+      <option value="10">low</option>
+      <option value="20">mid</option>
+      <option value="60">high</option>
+    </select>
+  </p>
+
+  <p id="js-music" class="music">play rhythm track js - tension &gt;&gt;</p>
+
+  <p id="js-loader" class="loader"><span></span></p>
+
+  <script src="js/jquery-2.2.4.min.js"></script>
+  <script src="js/Base64.js"></script>
+  <script src="js/Base64binary.js"></script>
+  <script src="js/WebAudioAPI.js"></script>
+  <script src="js/audioDetect.js"></script>
+  <script src="js/gm.js"></script>
+  <script src="js/loader.js"></script>
+  <script src="js/plugin.audiotag.js"></script>
+  <script src="js/plugin.webaudio.js"></script>
+  <script src="js/plugin.webmidi.js"></script>
+  <script src="js/dom_request_xhr.js"></script>
+  <script src="js/dom_request_script.js"></script>
+  <script>
+
+    $(function () {
+      
+      // load music
+      if ($('#js-music').length) {
+        
+        // load drum
+        midiDrum.init();
+        
+        // set event
+        setPlayer.event();
+        
+      }
+      
+    });
+
+    // player
+    var setPlayer = {
+      event: function () {
+        $(document).on('click', '#js-music', function () {
+          midiDrum.play();
+        });
+        
+      },
+      loaderHide: function () {
+        $('#js-loader').hide();
+      },
+      tempo: function (val) {
+        var depth = Number($('#js-tempo').val());
+        return val * depth;
+      },
+      humanize: function (val) {
+        var depth = Number($('#js-humanize').val());
+        var range = 2 * depth * Math.random();
+        var humanize = val - depth + range;
+        return humanize;
+      },
+      humanizeVelocity: function (val) {
+        var depth = Number($('#js-humanizeVelocity').val());
+        var range = 2 * depth * Math.random();
+        var humanize = val - depth + range;
+        return humanize;
+      },
+      tension: function (val, velosity) {
+        if (velosity > 110) {
+          val = val + 4;
+        }
+        else if (velosity > 90) {
+          val = val + 2;
+        }
+        else if (velosity > 70) {
+          val = val + 1;
+        }
+        return val;
+      }
+    };
+
+    // drum
+    var midiDrum = {
+      init: function () {
+        MIDI.loadPlugin({
+          soundfontUrl: './soundfont/',
+          instrument: 'synth_drum',
+          onprogress: function(state, progress) {
+          },
+          onsuccess: function () {
+
+            // hide loader
+            setPlayer.loaderHide();
+
+          }
+        });
+      },
+      play: function () {
+
+        // bd
+        // 1
+        midiDrum.shot(1.000, 120, 1, 21);
+        midiDrum.shot(1.480, 100, 1, 21);
+        midiDrum.shot(1.960, 110, 1, 21);
+        midiDrum.shot(2.440, 100, 1, 21);
+
+        // 2
+        midiDrum.shot(2.920, 120, 1, 21);
+        midiDrum.shot(3.400, 100, 1, 21);
+        midiDrum.shot(3.880, 110, 1, 21);
+        midiDrum.shot(4.360, 100, 1, 21);
+
+        // ft
+        // 2
+        midiDrum.shot(4.360, 70, 1, 50);
+        midiDrum.shot(4.480, 60, 1, 50);
+        midiDrum.shot(4.600, 90, 1, 50);
+        
+      },
+      shot: function (delay, velocity, duration, num) {
+        var delay = setPlayer.humanize(setPlayer.tempo(delay));
+        var velocity = setPlayer.humanizeVelocity(velocity);
+        var duration = duration;
+        var note = setPlayer.tension(num, velocity);
+        // play the note
+        MIDI.programChange(1, 118);
+        MIDI.setVolume(1, 127);
+        MIDI.noteOn(1, note, velocity, delay);
+        MIDI.noteOff(1, note, delay + duration);
+      }
+    };
+  </script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+

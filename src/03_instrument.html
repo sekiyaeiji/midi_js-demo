@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>03 instrument</title>
+  <style>
+    html {
+      height: 100%;
+    }
+    body {
+      position: relative;
+      height: 100%;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: normal;
+      color: #333;
+    }
+    .piano {
+      position: relative;
+      display: inline-block;
+      margin: 0 0 30px;
+      padding: 0;
+      font-size: 0;
+      border-left: 1px solid #ddd;
+      border-top: 1px solid #ddd;
+      border-width: 1px 0 0 1px;
+      list-style-type: none;
+    }
+    .piano > li {
+      display: inline-block;
+      margin: 0;
+      padding: 100px 0 0;
+      width: 25px;
+      height: 25px;
+      background: #fcfcfc;
+      border-right: 1px solid #666;
+      border-bottom: 1px solid #999;
+      border-bottom-left-radius: 3px;
+      border-bottom-right-radius: 3px;
+      color: #333;
+      text-align: center;
+      font-size: 10px;
+      cursor: pointer;
+    }
+    .piano > li:active,
+    .piano > li.active {
+      padding: 99px 0 1px;
+      background: #ccc;
+      border-right: 0px;
+      border-bottom: 0px;
+      border-left: 1px solid #666;
+      border-top: 1px solid #999;
+      font-weight: bold;
+      color: #fff;
+    }
+    .piano > li.black {
+      position: absolute;
+      padding: 55px 0 0;
+      top: 0;
+      left: 0;
+      width: 21px;
+      height: 25px;
+      background: #333;
+      border-right: 1px solid #666;
+      border-bottom: 1px solid #999;
+      color: #fff;
+    }
+    .piano > li.black:active,
+    .piano > li.black.active {
+      padding: 54px 0 1px;
+      background: #000;
+      border-right: 0px;
+      border-bottom: 0px;
+      border-left: 1px solid #666;
+      border-top: 1px solid #999;
+      font-weight: bold;
+      color: #ccc;
+    }
+    .piano > li.black:nth-child(2) {
+      left: 15px;
+    }
+    .piano > li.black:nth-child(4) {
+      left: 41px;
+    }
+    .piano > li.black:nth-child(7) {
+      left: 93px;
+    }
+    .piano > li.black:nth-child(9) {
+      left: 119px;
+    }
+    .piano > li.black:nth-child(11) {
+      left: 145px;
+    }
+    .drum {
+      position: relative;
+      margin: 0 0 50px;
+      font-size: 0;
+      list-style-type: none;
+    }
+    .drum > li {
+      position: absolute;
+      border: 1px solid #333;
+      border-radius: 50%;
+      background: #fcfcfc;
+      cursor: pointer;
+      z-index: 2;
+    }
+    .drum > li:active,
+    .drum > li.active {
+      border: 1px solid #333;
+      background: #ccc;
+    }
+    .drum > li:nth-child(1) {
+      left: 5px;
+      top: 65px;
+      width: 30px;
+      height: 30px;
+    }
+    .drum > li:nth-child(2) {
+      left: 40px;
+      top: 45px;
+      width: 40px;
+      height: 40px;
+    }
+    .drum > li:nth-child(3) {
+      left: 85px;
+      top: 45px;
+      width: 50px;
+      height: 50px;
+    }
+    .drum > li:nth-child(4) {
+      left: 120px;
+      top: 85px;
+      width: 60px;
+      height: 60px;
+    }
+    .drum > li:nth-child(5) {
+      left: 30px;
+      top: 0;
+      width: 110px;
+      height: 80px;
+      border-radius: 0;
+      z-index: 1;
+    }
+    .loader {
+      position: fixed;
+      margin: 0;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      height: 100%;
+      background: rgba(255, 255, 255, .8);
+      z-index: 10;
+    }
+    .loader > span {
+      position: absolute;
+      display: block;
+      left: 50%;
+      right: 50%;
+      top: 50%;
+      bottom: 50%;
+      width: 32px;
+      height: 32px;
+      background: url(img/loader.png);
+      background-repeat: no-repeat;
+      background-size: 32px 32px;
+      animation: animeZ 2s linear infinite;
+    }
+    @keyframes animeZ {
+      0% {
+        transform: rotateZ(-0deg);
+      }
+      100% {
+        transform: rotateZ(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>ピアノと太鼓</h1>
+
+  <ul class="piano" id="js-piano">
+    <li>C</li>
+    <li class="black">C#</li>
+    <li>D</li>
+    <li class="black">D#</li>
+    <li>E</li>
+    <li>F</li>
+    <li class="black">F#</li>
+    <li>G</li>
+    <li class="black">G#</li>
+    <li>A</li>
+    <li class="black">A#</li>
+    <li>B</li>
+    <li>C</li>
+  </ul>
+
+  <ul class="drum" id="js-drum">
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+  </ul>
+
+  <p id="js-loader" class="loader"><span></span></p>
+
+  <script src="js/jquery-2.2.4.min.js"></script>
+  <script src="js/Base64.js"></script>
+  <script src="js/Base64binary.js"></script>
+  <script src="js/WebAudioAPI.js"></script>
+  <script src="js/audioDetect.js"></script>
+  <script src="js/gm.js"></script>
+  <script src="js/loader.js"></script>
+  <script src="js/plugin.audiotag.js"></script>
+  <script src="js/plugin.webaudio.js"></script>
+  <script src="js/plugin.webmidi.js"></script>
+  <script src="js/dom_request_xhr.js"></script>
+  <script src="js/dom_request_script.js"></script>
+  <script>
+    $(function () {
+
+      // load piano
+      if ($('#js-piano').length) {
+        var conf = {
+          target: '#js-piano'
+        };
+        midiPiano.init(conf);
+      }
+
+      // load drum
+      if ($('#js-drum').length) {
+        var conf = {
+          target: '#js-drum'
+        };
+        midiDrum.init(conf);
+      }
+
+    });
+
+    var midiDrum = {
+      init: function (conf) {
+        MIDI.loadPlugin({
+          soundfontUrl: './soundfont/',
+          instrument: 'synth_drum',
+          onsuccess: function () {
+
+            // mousedown event
+            midiDrum.event(conf);
+
+            // keyboard event
+            midiDrum.keyboard(conf);
+          }
+        });
+      },
+      event: function (conf) {
+        var $target = $(conf.target);
+        $target.on('mousedown', 'li:eq(0)', function (e) {
+          e.preventDefault();
+          midiDrum.shot(80);
+        });
+        $target.on('mousedown', 'li:eq(1)', function (e) {
+          e.preventDefault();
+          midiDrum.shot(70);
+        });
+        $target.on('mousedown', 'li:eq(2)', function (e) {
+          e.preventDefault();
+          midiDrum.shot(60);
+        });
+        $target.on('mousedown', 'li:eq(3)', function (e) {
+          e.preventDefault();
+          midiDrum.shot(50);
+        });
+        $target.on('mousedown', 'li:eq(4)', function (e) {
+          e.preventDefault();
+          midiDrum.shot(30);
+        });
+      },
+      keyboard: function (conf) {
+        var target = conf.target;
+        $(window).keydown(function (e) {
+          e.preventDefault();
+          var key = e.keyCode;
+          switch (key) {
+          case 90:
+            midiDrum.shot(80);
+            $(target + ' li:eq(0)').addClass('active');
+            break;
+          case 88:
+            midiDrum.shot(70);
+            $(target + ' li:eq(1)').addClass('active');
+            break;
+          case 67:
+            midiDrum.shot(60);
+            $(target + ' li:eq(2)').addClass('active');
+            break;
+          case 86:
+            midiDrum.shot(50);
+            $(target + ' li:eq(3)').addClass('active');
+            break;
+          case 66:
+            midiDrum.shot(30);
+            $(target + ' li:eq(4)').addClass('active');
+            break;
+          default:
+            break;
+          }
+        });
+        $(window).keyup(function (e) {
+          e.preventDefault();
+          $(target + ' li').removeClass('active');
+        });
+      },
+      shot: function (num) {
+        var delay = 0;
+        var velocity = 127;
+        var duration = 10;
+        var note = num;
+        // play the note
+        MIDI.programChange(1, 118);
+        MIDI.setVolume(1, 127);
+        MIDI.noteOn(1, note, velocity, delay);
+        MIDI.noteOff(1, note, delay + duration);
+      }
+    };
+
+    var midiPiano = {
+      init: function (conf) {
+        MIDI.loadPlugin({
+          soundfontUrl: './soundfont/',
+          instrument: 'acoustic_grand_piano',
+          onsuccess: function () {
+
+            // mousedown event
+            midiPiano.event(conf);
+
+            // keyboard event
+            midiPiano.keyboard(conf);
+
+            // hide loader
+            midiPiano.loaderHide();
+          }
+        });
+      },
+      event: function (conf) {
+        var $target = $(conf.target);
+        $target.on('mousedown', 'li:eq(0)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(60);
+        });
+        $target.on('mousedown', 'li:eq(1)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(61);
+        });
+        $target.on('mousedown', 'li:eq(2)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(62);
+        });
+        $target.on('mousedown', 'li:eq(3)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(63);
+        });
+        $target.on('mousedown', 'li:eq(4)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(64);
+        });
+        $target.on('mousedown', 'li:eq(5)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(65);
+        });
+        $target.on('mousedown', 'li:eq(6)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(66);
+        });
+        $target.on('mousedown', 'li:eq(7)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(67);
+        });
+        $target.on('mousedown', 'li:eq(8)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(68);
+        });
+        $target.on('mousedown', 'li:eq(9)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(69);
+        });
+        $target.on('mousedown', 'li:eq(10)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(70);
+        });
+        $target.on('mousedown', 'li:eq(11)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(71);
+        });
+        $target.on('mousedown', 'li:eq(12)', function (e) {
+          e.preventDefault();
+          midiPiano.shot(72);
+        });
+      },
+      loaderHide: function () {
+        $('#js-loader').hide();
+      },
+      keyboard: function (conf) {
+        var target = conf.target;
+        $(window).keydown(function (e) {
+          e.preventDefault();
+          var key = e.keyCode;
+          switch (key) {
+          case 65:
+            midiPiano.shot(60);
+            $(target + ' li:eq(0)').addClass('active');
+            break;
+          case 87:
+            midiPiano.shot(61);
+            $(target + ' li:eq(1)').addClass('active');
+            break;
+          case 83:
+            midiPiano.shot(62);
+            $(target + ' li:eq(2)').addClass('active');
+            break;
+          case 69:
+            midiPiano.shot(63);
+            $(target + ' li:eq(3)').addClass('active');
+            break;
+          case 68:
+            midiPiano.shot(64);
+            $(target + ' li:eq(4)').addClass('active');
+            break;
+          case 70:
+            midiPiano.shot(65);
+            $(target + ' li:eq(5)').addClass('active');
+            break;
+          case 84:
+            midiPiano.shot(66);
+            $(target + ' li:eq(6)').addClass('active');
+            break;
+          case 71:
+            midiPiano.shot(67);
+            $(target + ' li:eq(7)').addClass('active');
+            break;
+          case 89:
+            midiPiano.shot(68);
+            $(target + ' li:eq(8)').addClass('active');
+            break;
+          case 72:
+            midiPiano.shot(69);
+            $(target + ' li:eq(9)').addClass('active');
+            break;
+          case 85:
+            midiPiano.shot(70);
+            $(target + ' li:eq(10)').addClass('active');
+            break;
+          case 74:
+            midiPiano.shot(71);
+            $(target + ' li:eq(11)').addClass('active');
+            break;
+          case 75:
+            midiPiano.shot(72);
+            $(target + ' li:eq(12)').addClass('active');
+            break;
+          default:
+            break;
+          }
+        });
+        $(window).keyup(function (e) {
+          e.preventDefault();
+          $(target + ' li').removeClass('active');
+        });
+      },
+      shot: function (num) {
+        var delay = 0;
+        var velocity = 127;
+        var duration = 10;
+        var note = num;
+        // play the note
+        MIDI.programChange(0, 0);
+        MIDI.setVolume(0, 127);
+        MIDI.noteOn(0, note, velocity, delay);
+        MIDI.noteOff(0, note, delay + duration);
+      }
+    };
+  </script>
+</body>
+
+</html>
