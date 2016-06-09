@@ -189,14 +189,12 @@
           icon: icon
         });
 
+        // play piano
+        midiPiano.shot(69);
+
         // リンク
         notify.addEventListener('click', function () {
-          
-          // open notification
           open(document.getElementById('js-link').innerText);
-          
-          // play piano
-          midiPiano.shot(69);
         });
 
         // 5秒後非表示
